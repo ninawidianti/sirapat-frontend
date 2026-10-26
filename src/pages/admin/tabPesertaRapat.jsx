@@ -139,10 +139,10 @@ export default function TabPesertaRapat({ meetingId, meetingData }) {
     };
 
     // Filter pimpinan
-    const pimpinanUsers = allUsers.filter((u) => {
-        if (!u.jabatan) return false;
-        const j = u.jabatan.toLowerCase();
-        return j.includes("kepala") || j.includes("ketua");
+const pimpinanUsers = allUsers.filter((u) => {
+        // 1. Cek berdasarkan role 'Pimpinan' dari database/API (Case-insensitive)
+        const isRolePimpinan = u.role && u.role.toLowerCase() === "pimpinan";
+        return isRolePimpinan;
     });
 
     // Helper Konversi URL/Image ke Base64

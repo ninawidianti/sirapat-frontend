@@ -35,17 +35,21 @@ export default function Login() {
         return;
       }
 
+      // Simpan data token dan user ke localStorage
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      setUserName(data.user.name);
+      setUserName(data.user.name || "Pengguna");
       setShowSuccessPopup(true);
 
-      // Tunda navigasi sebentar (1.5 detik) agar user sempat membaca popup-nya
+      // Tunda navigasi sebentar (1.5 detik) agar user sempat membaca popup
       setTimeout(() => {
-        if (data.user.role === "Admin") {
+        const userRole = data.user && data.user.role ? String(data.user.role).toLowerCase() : "";
+
+        if (userRole === "admin") {
           navigate("/admin/dashboard-admin");
         } else {
+          // Baik Pimpinan maupun Peserta diarahkkan ke Dashboard User
           navigate("/user/dashboard-user");
         }
       }, 1500);
@@ -172,7 +176,7 @@ export default function Login() {
       left: 0,
       width: "100%",
       height: "100vh",
-      backgroundColor: "rgba(0, 0, 0, 0.4)", // Efek latar belakang redup
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
@@ -215,10 +219,16 @@ export default function Login() {
         </div>
 
         <div style={styles.titleContainer}>
-          <p style={styles.subtitle}>Sistem Notulensi Rapat</p>
-          <h2 style={styles.title}>Balai Veteriner Bukittinggi</h2>
+          <h2 style={{ ...styles.title, fontSize: "20px", color: "#2D7A68" }}>
+            SiRapat
+          </h2>
+          <p style={{ ...styles.subtitle, fontWeight: 600, color: "#4a4a4a", marginTop: "2px" }}>
+            Balai Veteriner Bukittinggi
+          </p>
+          <p style={{ ...styles.subtitle, fontSize: "11px", color: "#777777", marginTop: "4px" }}>
+            Sistem Rapat Pintar dan Terintegrasi
+          </p>
         </div>
-
         <form style={styles.form} onSubmit={handleLogin}>
           <div style={styles.formGroup}>
             <input
@@ -256,6 +266,7 @@ export default function Login() {
           <p style={styles.footerText}>– 2026 All Right Reserved –</p>
         </div>
       </div>
+
       {/* MODAL / POPUP SUCCESS */}
       {showSuccessPopup && (
         <div style={styles.popupOverlay}>

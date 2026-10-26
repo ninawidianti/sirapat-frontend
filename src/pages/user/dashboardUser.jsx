@@ -4,10 +4,14 @@ import logo from "../../assets/logo_kementan.png";
 import hai from "../../assets/hello_admin.png";
 
 export default function DashboardUser() {
-  // Ambil data user & token dari localStorage
+  // Ambil data user & token dari localStorage secara aman
   const userStored = JSON.parse(localStorage.getItem("user") || "{}");
-  const userName = userStored.name || "User";
-  const currentUserId = userStored.user_id || userStored.id;
+  const userName = userStored?.name || "User";
+  
+  // Ambil role dengan pengecekan opsional agar tidak crash jika role undefined/null
+  const userRole = userStored && userStored.role ? String(userStored.role).toLowerCase() : "";
+  
+  const currentUserId = userStored?.user_id || userStored?.id;
   const token = localStorage.getItem("token");
 
   const navigate = useNavigate();
@@ -63,7 +67,7 @@ export default function DashboardUser() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Helper untuk mengecek apakah window konfirmasi kehadiran sedang dibuka (Mulai jam rapat s/d 2 minggu setelahnya)
+  // Helper untuk mengecek apakah window konfirmasi kehadiran sedang dibuka
   const isAttendanceOpen = (meeting) => {
     if (!meeting || !meeting.date || !meeting.start_time) {
       return { isOpen: false, reason: "Data rapat tidak lengkap" };
@@ -78,10 +82,7 @@ export default function DashboardUser() {
       return { isOpen: false, reason: "Format tanggal tidak valid" };
     }
 
-    // Waktu Mulai: Tanggal & jam rapat dimulai
     const openTime = new Date(year, month - 1, day, hours || 0, minutes || 0, 0);
-
-    // Batas Selesai: 2 minggu (14 hari) setelah rapat dimulai
     const closeTime = new Date(openTime.getTime() + 14 * 24 * 60 * 60 * 1000);
 
     if (now < openTime) {
@@ -102,7 +103,7 @@ export default function DashboardUser() {
     return { isOpen: true, reason: "" };
   };
 
-  // 1. Fetch Data Rapat dari API Backend
+  // 1. Fetch Data Rapat
   const fetchMeetings = async () => {
     try {
       setLoading(true);
@@ -131,7 +132,7 @@ export default function DashboardUser() {
     }
   };
 
-  // 2. Fetch Data Kepanitiaan dari API Backend dan Filter Sesuai User yang Login
+  // 2. Fetch Data Kepanitiaan
   const fetchCommittees = async () => {
     try {
       setLoadingCommittees(true);
@@ -153,7 +154,6 @@ export default function DashboardUser() {
 
       const allCommittees = result.data || [];
 
-      // Filter kepanitiaan dimana user saat ini terdaftar di dalam array 'members'
       const userCommittees = allCommittees.filter((comm) => {
         if (!comm.members || !Array.isArray(comm.members)) return false;
         return comm.members.some(
@@ -170,7 +170,7 @@ export default function DashboardUser() {
     }
   };
 
-  // 3. Fetch Data Tindak Lanjut dari API & Hitung Jumlah Per Status
+  // 3. Fetch Data Tindak Lanjut
   const fetchFollowUps = async () => {
     try {
       setLoadingTindakLanjut(true);
@@ -309,8 +309,8 @@ export default function DashboardUser() {
         const list = Array.isArray(result.data)
           ? result.data
           : Array.isArray(result)
-          ? result
-          : [];
+            ? result
+            : [];
         setParticipants(list);
       } else {
         setParticipants([]);
@@ -353,7 +353,7 @@ export default function DashboardUser() {
 
   const scheduledMeetings = meetings.filter((m) => m.status === "Terjadwal");
 
-  // --- HITUNGAN STATISTIK STATUS RAPAT USER ---
+  // Hitungan Statistik
   const totalDiundang = meetings.length;
   const totalHadir = meetings.filter((m) => String(m.attendance_status).toLowerCase() === "hadir").length;
   const totalIzin = meetings.filter((m) => String(m.attendance_status).toLowerCase() === "izin").length;
@@ -411,6 +411,7 @@ export default function DashboardUser() {
       padding: isMobile ? "0.75rem 1rem" : "1rem 1.5rem",
       display: "flex",
       alignItems: "center",
+      justifyInhalt: "space-between",
       justifyContent: "space-between",
       boxSizing: "border-box",
       gap: "0.75rem",
@@ -1012,7 +1013,7 @@ export default function DashboardUser() {
             onClick={() => navigate("/user/dashboard-user")}
             style={
               location.pathname === "/user/dashboard-user" ||
-              location.pathname.includes("dashboard")
+                location.pathname.includes("dashboard")
                 ? styles.navLinkActive
                 : styles.navLink
             }
@@ -1030,6 +1031,20 @@ export default function DashboardUser() {
           >
             Jadwal Rapat
           </button>
+
+          {/* Hanya tampil jika role user adalah Pimpinan */}
+          {userRole === "pimpinan" && (
+            <button
+              onClick={() => navigate("/user/data-rapat")}
+              style={
+                location.pathname === "/user/data-rapat"
+                  ? styles.navLinkActive
+                  : styles.navLink
+              }
+            >
+              Data Rapat
+            </button>
+          )}
 
           <button
             onClick={() => navigate("/user/tindak-lanjut")}
@@ -1518,7 +1533,7 @@ export default function DashboardUser() {
 
           {/* Kolom Kanan: Statistik Rapat Saya & Daftar Tindak Lanjut */}
           <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? "1rem" : "1.5rem" }}>
-            
+
             {/* STATISTIK RAPAT SAYA */}
             <div style={styles.panelCard}>
               <h3 style={styles.panelTitle}>Statistik Rapat Saya</h3>
@@ -1536,7 +1551,6 @@ export default function DashboardUser() {
                 </div>
               ) : (
                 <>
-                  {/* Total Diundang */}
                   <div
                     style={styles.tindakLanjutCard}
                     onClick={() => navigate("/user/jadwal-rapat")}
@@ -1564,7 +1578,6 @@ export default function DashboardUser() {
                     </div>
                   </div>
 
-                  {/* Hadir */}
                   <div
                     style={styles.tindakLanjutCard}
                     onClick={() => navigate("/user/jadwal-rapat")}
@@ -1590,7 +1603,6 @@ export default function DashboardUser() {
                     </div>
                   </div>
 
-                  {/* Izin */}
                   <div
                     style={styles.tindakLanjutCard}
                     onClick={() => navigate("/user/jadwal-rapat")}
@@ -1617,7 +1629,6 @@ export default function DashboardUser() {
                     </div>
                   </div>
 
-                  {/* Sakit */}
                   <div
                     style={styles.tindakLanjutCard}
                     onClick={() => navigate("/user/jadwal-rapat")}
@@ -1642,7 +1653,6 @@ export default function DashboardUser() {
                     </div>
                   </div>
 
-                  {/* Belum Konfirmasi */}
                   <div
                     style={styles.tindakLanjutCard}
                     onClick={() => navigate("/user/jadwal-rapat")}
@@ -1689,7 +1699,6 @@ export default function DashboardUser() {
                 </div>
               ) : (
                 <>
-                  {/* Belum Mulai */}
                   <div
                     style={styles.tindakLanjutCard}
                     onClick={() => navigate("/user/tindak-lanjut")}
@@ -1717,7 +1726,6 @@ export default function DashboardUser() {
                     </div>
                   </div>
 
-                  {/* Dikerjakan */}
                   <div
                     style={styles.tindakLanjutCard}
                     onClick={() => navigate("/user/tindak-lanjut")}
@@ -1743,7 +1751,6 @@ export default function DashboardUser() {
                     </div>
                   </div>
 
-                  {/* Selesai */}
                   <div
                     style={styles.tindakLanjutCard}
                     onClick={() => navigate("/user/tindak-lanjut")}
@@ -1909,7 +1916,6 @@ export default function DashboardUser() {
       {showPesertaModal && selectedMeeting && (
         <div style={styles.modalOverlay}>
           <div style={styles.pesertaModalCard}>
-            {/* Header Modal */}
             <div style={styles.pesertaModalHeader}>
               <div style={{ visibility: "hidden" }}></div>
               <button
@@ -1920,13 +1926,11 @@ export default function DashboardUser() {
               </button>
             </div>
 
-            {/* Sub-bar Info Jumlah Peserta */}
             <div style={styles.pesertaSubBar}>
               <span>List Peserta Rapat</span>
               <span>{participants.length} Peserta</span>
             </div>
 
-            {/* Header Tabel Peserta */}
             <div style={styles.pesertaTableHeader}>
               <span>Nama</span>
               <span>NIP</span>
@@ -1934,7 +1938,6 @@ export default function DashboardUser() {
               <span>Bidang</span>
             </div>
 
-            {/* Body List Peserta */}
             <div style={styles.pesertaListScroll}>
               {loadingPeserta ? (
                 <div

@@ -220,9 +220,9 @@ export default function DetailDataRapat() {
             fontSize: "clamp(0.65rem, 1.5vw, 0.75rem)",
             fontWeight: 300,
             margin: 0,
-            opacity: 0.8, // Menurunkan opacity agar terlihat lebih soft/tipis
-            fontFamily: "'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif", // Font dengan variasi Light yang bagus
-            WebkitFontSmoothing: "antialiased", // Membuat rendering teks lebih halus di Mac/iOS
+            opacity: 0.8,
+            fontFamily: "'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif",
+            WebkitFontSmoothing: "antialiased",
             MozOsxFontSmoothing: "grayscale",
         },
         brandTitle: {
@@ -500,8 +500,7 @@ export default function DetailDataRapat() {
                     <button
                         onClick={() => navigate("/admin/dashboard-admin")}
                         style={
-                            location.pathname === "/admin/dashboardAdmin" ||
-                                location.pathname === "/admin/dashboard-admin"
+                            location.pathname.includes("dashboard")
                                 ? styles.navLinkActive
                                 : styles.navLink
                         }
@@ -512,8 +511,7 @@ export default function DetailDataRapat() {
                     <button
                         onClick={() => navigate("/admin/jadwal-rapat")}
                         style={
-                            location.pathname === "/admin/jadwalRapat" ||
-                                location.pathname === "/admin/jadwal-rapat"
+                            location.pathname.includes("jadwal")
                                 ? styles.navLinkActive
                                 : styles.navLink
                         }
@@ -524,7 +522,7 @@ export default function DetailDataRapat() {
                     <button
                         onClick={() => navigate("/admin/data-rapat")}
                         style={
-                            location.pathname === "/admin/data-rapat"
+                            location.pathname.includes("data-rapat")
                                 ? styles.navLinkActive
                                 : styles.navLink
                         }
@@ -535,7 +533,7 @@ export default function DetailDataRapat() {
                     <button
                         onClick={() => navigate("/admin/tindak-lanjut")}
                         style={
-                            location.pathname === "/admin/tindak-lanjut"
+                            location.pathname.includes("tindak-lanjut")
                                 ? styles.navLinkActive
                                 : styles.navLink
                         }
@@ -546,7 +544,7 @@ export default function DetailDataRapat() {
                     <button
                         onClick={() => navigate("/admin/daftar-peserta")}
                         style={
-                            location.pathname === "/admin/daftar-peserta"
+                            location.pathname.includes("daftar-peserta")
                                 ? styles.navLinkActive
                                 : styles.navLink
                         }

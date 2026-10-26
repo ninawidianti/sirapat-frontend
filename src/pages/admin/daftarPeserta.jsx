@@ -49,6 +49,7 @@ export default function DaftarPeserta() {
     const [showAddUserModal, setShowAddUserModal] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [signatureFile, setSignatureFile] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
     const [formUserData, setFormUserData] = useState({
         name: "",
         nip: "",
@@ -157,11 +158,10 @@ export default function DaftarPeserta() {
         fetchCommittees();
     }, []);
 
-    // Filter daftar pejabat (hanya yang memiliki kata 'kepala' atau 'ketua' di jabatan/bidang)
+    // Filter daftar pejabat (yang memiliki role Pimpinan atau kata 'kepala'/'ketua'/'pimpinan' di jabatan/bidang)
     const filteredKepalaList = pesertaList.filter((user) => {
-        const j = (user.jabatan || "").toLowerCase();
-        const b = (user.bidang || "").toLowerCase();
-        return j.includes("kepala") || j.includes("ketua") || b.includes("kepala") || b.includes("ketua");
+        const r = (user.role || "").toLowerCase();
+        return r === "pimpinan";
     });
 
     // Helper Base64 Image
@@ -322,6 +322,7 @@ export default function DaftarPeserta() {
         setShowAddUserModal(false);
         setSelectedUserId(null);
         setSignatureFile(null);
+        setShowPassword(false);
         setFormError("");
         setFormUserData({
             name: "",
@@ -339,6 +340,7 @@ export default function DaftarPeserta() {
     const handleEditUserClick = (user) => {
         setSelectedUserId(user.user_id);
         setSignatureFile(null);
+        setShowPassword(false);
         setFormUserData({
             name: user.name || "",
             nip: user.nip || "",
@@ -998,6 +1000,30 @@ export default function DaftarPeserta() {
             outline: "none",
             color: "#374151",
         },
+        fileUploadContainer: {
+            border: "1px solid #d1d5db",
+            borderRadius: "8px",
+            padding: "8px 12px",
+            backgroundColor: "#ffffff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+        },
+        fileUploadBtn: {
+            backgroundColor: "#e6f4f1",
+            color: "#2D7A68",
+            padding: "6px 12px",
+            borderRadius: "6px",
+            fontSize: "12px",
+            fontWeight: 600,
+            border: "none",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "4px",
+        },
         label: {
             fontSize: "13px",
             fontWeight: 600,
@@ -1077,8 +1103,7 @@ export default function DaftarPeserta() {
             padding: "0.5rem 1.25rem",
             border: "1px solid #d1d5db",
             borderRadius: "0.5rem",
-            backgroundColor: "#ff6b6b",
-            color: "#ffffff",
+            color: "#000015",
             fontSize: "clamp(0.75rem, 1.5vw, 0.8125rem)",
             fontWeight: 600,
             cursor: "pointer",
@@ -1419,7 +1444,7 @@ export default function DaftarPeserta() {
                                     <option value={tempNamaTTD}>{tempNamaTTD}</option>
                                 )}
 
-                                {/* Opsi dari data terfilter ("Kepala" atau "Ketua") */}
+                                {/* Opsi dari data terfilter ("Kepala", "Ketua", atau Role "Pimpinan") */}
                                 {filteredKepalaList.map((user) => (
                                     <option key={user.user_id} value={user.name}>
                                         {user.name} ({user.jabatan || user.bidang})
@@ -1432,7 +1457,7 @@ export default function DaftarPeserta() {
                             <input
                                 type="text"
                                 style={styles.formInput}
-                                placeholder="Masukkan NIP Kepala Balai..."
+                                placeholder="Masukkan NIP Kepala Balai"
                                 value={tempNipTTD}
                                 onChange={(e) => setTempNipTTD(e.target.value)}
                                 required
@@ -1476,7 +1501,7 @@ export default function DaftarPeserta() {
                                     <input 
                                         type="text" 
                                         name="name" 
-                                        placeholder="Masukkan nama lengkap beserta gelar..." 
+                                        placeholder="Masukkan nama lengkap" 
                                         value={formUserData.name} 
                                         onChange={(e) => setFormUserData({ ...formUserData, name: e.target.value })} 
                                         style={styles.modalInputSoft} 
@@ -1488,7 +1513,7 @@ export default function DaftarPeserta() {
                                     <input 
                                         type="text" 
                                         name="nip" 
-                                        placeholder="Masukkan NIP (Contoh: 19800101 200501 1 002)..." 
+                                        placeholder="Masukkan NIP" 
                                         value={formUserData.nip} 
                                         onChange={(e) => setFormUserData({ ...formUserData, nip: e.target.value })} 
                                         style={styles.modalInputSoft} 
@@ -1500,7 +1525,7 @@ export default function DaftarPeserta() {
                                     <input 
                                         type="email" 
                                         name="email" 
-                                        placeholder="Masukkan alamat email aktif..." 
+                                        placeholder="Masukkan alamat email aktif" 
                                         value={formUserData.email} 
                                         onChange={(e) => setFormUserData({ ...formUserData, email: e.target.value })} 
                                         style={styles.modalInputSoft} 
@@ -1509,21 +1534,60 @@ export default function DaftarPeserta() {
                                 </div>
                                 <div>
                                     <label style={styles.label}>Password {selectedUserId ? "(Kosongkan jika tak diubah)" : ""}</label>
-                                    <input 
-                                        type="password" 
-                                        name="password" 
-                                        placeholder={selectedUserId ? "Kosongkan jika tidak ingin mengubah password" : "Masukkan password akun..."} 
-                                        value={formUserData.password} 
-                                        onChange={(e) => setFormUserData({ ...formUserData, password: e.target.value })} 
-                                        style={styles.modalInputSoft} 
-                                        required={!selectedUserId} 
-                                    />
+                                    <div style={{ position: "relative", width: "100%" }}>
+                                        <input 
+                                            type={showPassword ? "text" : "password"} 
+                                            name="password" 
+                                            placeholder={selectedUserId ? "Kosongkan jika tidak ingin mengubah password" : "Masukkan password akun"} 
+                                            value={formUserData.password} 
+                                            onChange={(e) => setFormUserData({ ...formUserData, password: e.target.value })} 
+                                            style={{
+                                                ...styles.modalInputSoft,
+                                                paddingRight: "38px",
+                                                boxSizing: "border-box"
+                                            }} 
+                                            required={!selectedUserId} 
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            style={{
+                                                position: "absolute",
+                                                right: "10px",
+                                                top: "50%",
+                                                transform: "translateY(-50%)",
+                                                background: "none",
+                                                border: "none",
+                                                cursor: "pointer",
+                                                padding: 0,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                color: "#6b7280",
+                                                outline: "none"
+                                            }}
+                                            title={showPassword ? "Sembunyikan Password" : "Tampilkan Password"}
+                                        >
+                                            {showPassword ? (
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                    <circle cx="12" cy="12" r="3" />
+                                                </svg>
+                                            ) : (
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                                    <line x1="1" y1="1" x2="23" y2="23" />
+                                                </svg>
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
                                 <div>
                                     <label style={styles.label}>Kategori</label>
                                     <select name="role" value={formUserData.role} onChange={(e) => setFormUserData({ ...formUserData, role: e.target.value })} style={styles.modalInputSoft}>
                                         <option value="Peserta">Peserta</option>
                                         <option value="Admin">Admin</option>
+                                        <option value="Pimpinan">Pimpinan</option>
                                     </select>
                                 </div>
                                 {selectedUserId && (
@@ -1540,7 +1604,7 @@ export default function DaftarPeserta() {
                                     <input 
                                         type="text" 
                                         name="bidang" 
-                                        placeholder="Masukkan bidang/subbagian..." 
+                                        placeholder="Masukkan bidang/subbagian" 
                                         value={formUserData.bidang} 
                                         onChange={(e) => setFormUserData({ ...formUserData, bidang: e.target.value })} 
                                         style={styles.modalInputSoft} 
@@ -1552,7 +1616,7 @@ export default function DaftarPeserta() {
                                     <input 
                                         type="text" 
                                         name="jabatan" 
-                                        placeholder="Masukkan nama jabatan..." 
+                                        placeholder="Masukkan nama jabatan" 
                                         value={formUserData.jabatan} 
                                         onChange={(e) => setFormUserData({ ...formUserData, jabatan: e.target.value })} 
                                         style={styles.modalInputSoft} 
@@ -1564,7 +1628,7 @@ export default function DaftarPeserta() {
                                     <input 
                                         type="text" 
                                         name="phone" 
-                                        placeholder="Masukkan nomor HP/WhatsApp..." 
+                                        placeholder="Masukkan nomor HP/WhatsApp" 
                                         value={formUserData.phone} 
                                         onChange={(e) => setFormUserData({ ...formUserData, phone: e.target.value })} 
                                         style={styles.modalInputSoft} 
@@ -1572,11 +1636,25 @@ export default function DaftarPeserta() {
                                 </div>
                                 <div>
                                     <label style={styles.label}>Tanda Tangan Digital (PNG/JPG)</label>
+                                    <label htmlFor="signature-upload" style={styles.fileUploadContainer}>
+                                        <span style={{ fontSize: "12px", color: signatureFile ? "#1f2937" : "#9ca3af", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "260px" }}>
+                                            {signatureFile ? signatureFile.name : "Pilih gambar TTD (PNG/JPG)..."}
+                                        </span>
+                                        <div style={styles.fileUploadBtn}>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                <polyline points="17 8 12 3 7 8" />
+                                                <line x1="12" y1="3" x2="12" y2="15" />
+                                            </svg>
+                                            Browse
+                                        </div>
+                                    </label>
                                     <input
+                                        id="signature-upload"
                                         type="file"
                                         accept="image/*"
                                         onChange={(e) => setSignatureFile(e.target.files[0])}
-                                        style={styles.modalInputSoft}
+                                        style={{ display: "none" }}
                                     />
                                 </div>
                             </div>
@@ -1604,7 +1682,7 @@ export default function DaftarPeserta() {
                                     <label style={styles.label}>Nama Kepanitiaan</label>
                                     <input
                                         type="text"
-                                        placeholder="Contoh: Panitia WBK 2026"
+                                        placeholder="Masukkan Nama Kepanitiaan"
                                         value={formCommitteeData.name}
                                         onChange={(e) => setFormCommitteeData({ ...formCommitteeData, name: e.target.value })}
                                         style={styles.modalInputSoft}
@@ -1615,7 +1693,7 @@ export default function DaftarPeserta() {
                                     <label style={styles.label}>Deskripsi</label>
                                     <textarea
                                         rows="3"
-                                        placeholder="Keterangan singkat tentang panitia..."
+                                        placeholder="Deskripsi singkat tentang panitia"
                                         value={formCommitteeData.description}
                                         onChange={(e) => setFormCommitteeData({ ...formCommitteeData, description: e.target.value })}
                                         style={{ ...styles.modalInputSoft, resize: "vertical" }}

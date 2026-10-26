@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/login";
 import DashboardAdmin from "./pages/admin/dashboardAdmin";
 import DashboardUser from "./pages/user/dashboardUser";
-import DaftarPeserta from "./pages/admin/daftarPeserta"; // <-- Import Halaman Daftar Peserta
+import DaftarPeserta from "./pages/admin/daftarPeserta";
 import ProtectedRoute from "./components/protectRoute";
 import JadwalRapat from "./pages/admin/jadwalRapat";
 import DataRapat from "./pages/admin/dataRapat";
@@ -19,11 +19,11 @@ function App() {
         {/* Halaman Login */}
         <Route path="/" element={<Login />} />
 
-        {/* Halaman Admin */}
+        {/* ================= HALAMAN KHUSUS ADMIN ================= */}
         <Route
           path="/admin/dashboard-admin"
           element={
-            <ProtectedRoute allowedRole="Admin">
+            <ProtectedRoute allowedRole={["Admin", "admin"]}>
               <DashboardAdmin />
             </ProtectedRoute>
           }
@@ -31,103 +31,96 @@ function App() {
         <Route
           path="/admin/daftar-peserta"
           element={
-            <ProtectedRoute allowedRole="Admin">
+            <ProtectedRoute allowedRole={["Admin", "admin"]}>
               <DaftarPeserta />
             </ProtectedRoute>
           }
         />
-
-        {/* Halaman Jadwal Rapat */}
         <Route
           path="/admin/jadwal-rapat"
           element={
-            <ProtectedRoute allowedRole="Admin">
+            <ProtectedRoute allowedRole={["Admin", "admin"]}>
               <JadwalRapat />
             </ProtectedRoute>
           }
         />
-
-        {/* Halaman Data Rapat */}
-        <Route
-          path="/admin/data-rapat"
-          element={
-            <ProtectedRoute allowedRole="Admin">
-              <DataRapat />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Route tanpa ID (mengandalkan state) */}
-        <Route
-          path="/admin/detail-data-rapat"
-          element={
-            <ProtectedRoute allowedRole="Admin">
-              <DetailDataRapat />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Route dengan ID (untuk penanganan saat page refresh / direct link) */}
-        <Route
-          path="/admin/detail-data-rapat/:meetingId"
-          element={
-            <ProtectedRoute allowedRole="Admin">
-              <DetailDataRapat />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Route tindak lanjut */}
         <Route
           path="/admin/tindak-lanjut"
           element={
-            <ProtectedRoute allowedRole="Admin">
+            <ProtectedRoute allowedRole={["Admin", "admin"]}>
               <TindakLanjutAdmin />
             </ProtectedRoute>
           }
         />
-
-        {/* Halaman User / Peserta */}
         <Route
-          path="/user/dashboard-user"
+          path="/admin/data-rapat"
           element={
-            <ProtectedRoute allowedRole="Peserta">
-              <DashboardUser />
+            <ProtectedRoute allowedRole={["Admin", "admin"]}>
+              <DataRapat />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/detail-data-rapat"
+          element={
+            <ProtectedRoute allowedRole={["Admin", "admin"]}>
+              <DetailDataRapat />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/detail-data-rapat/:meetingId"
+          element={
+            <ProtectedRoute allowedRole={["Admin", "admin"]}>
+              <DetailDataRapat />
             </ProtectedRoute>
           }
         />
 
-        {/* Halaman jadwal rapat / Peserta */}
+        {/* ================= HALAMAN USER & PIMPINAN ================= */}
+        <Route
+          path="/user/dashboard-user"
+          element={
+            <ProtectedRoute allowedRole={["Peserta", "peserta", "Pimpinan", "pimpinan", "User", "user"]}>
+              <DashboardUser />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/user/jadwal-rapat"
           element={
-            <ProtectedRoute allowedRole="Peserta">
+            <ProtectedRoute allowedRole={["Peserta", "peserta", "Pimpinan", "pimpinan", "User", "user"]}>
               <JadwalRapatUser />
             </ProtectedRoute>
           }
         />
 
-        {/* Halaman tindak lanjut / Peserta */}
+        {/* Route Data Rapat Pimpinan & Peserta (Pakai file ./pages/admin/dataRapat) */}
+        <Route
+          path="/user/data-rapat"
+          element={
+            <ProtectedRoute allowedRole={["Peserta", "peserta", "Pimpinan", "pimpinan", "User", "user"]}>
+              <DataRapat />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/user/tindak-lanjut"
           element={
-            <ProtectedRoute allowedRole="Peserta">
+            <ProtectedRoute allowedRole={["Peserta", "peserta", "Pimpinan", "pimpinan", "User", "user"]}>
               <TindakLanjutUser />
             </ProtectedRoute>
           }
         />
-
-        {/* Halaman tindak lanjut / Peserta */}
         <Route
           path="/user/detail-data-rapat-user/:meetingId"
           element={
-            <ProtectedRoute allowedRole="Peserta">
+            <ProtectedRoute allowedRole={["Peserta", "peserta", "Pimpinan", "pimpinan", "User", "user"]}>
               <DetailDataRapatUser />
             </ProtectedRoute>
           }
         />
-
-
       </Routes>
     </BrowserRouter>
   );

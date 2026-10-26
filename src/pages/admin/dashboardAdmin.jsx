@@ -21,6 +21,10 @@ export default function DashboardAdmin() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // State Data Statistik Tambahan (Tindak Lanjut & Peserta)
+    const [followUps, setFollowUps] = useState([]);
+    const [totalUsersCount, setTotalUsersCount] = useState(0);
+
     // State Modal List Peserta
     const [showPesertaModal, setShowPesertaModal] = useState(false);
     const [selectedMeeting, setSelectedMeeting] = useState(null);
@@ -82,30 +86,44 @@ export default function DashboardAdmin() {
         }
     };
 
-    // Fetch Data Rapat dari API Backend
-    const fetchMeetings = async () => {
+    // Fetch Seluruh Data Dashboard (Rapat, Follow Ups, dan Peserta)
+    const fetchDashboardData = async () => {
         try {
             setLoading(true);
             setError(null);
 
             const token = localStorage.getItem("token");
-            const response = await fetch("http://localhost:5000/api/meetings", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const headers = {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            };
 
-            const result = await response.json();
+            const [resMeetings, resFollowUps, resUsers] = await Promise.all([
+                fetch("http://localhost:5000/api/meetings", { headers }),
+                fetch("http://localhost:5000/api/follow-ups", { headers }),
+                fetch("http://localhost:5000/api/users", { headers }),
+            ]);
 
-            if (!response.ok) {
-                throw new Error(result.message || "Gagal mengambil data rapat");
+            const resultMeetings = await resMeetings.json();
+            const resultFollowUps = await resFollowUps.json();
+            const resultUsers = await resUsers.json();
+
+            if (!resMeetings.ok) {
+                throw new Error(resultMeetings.message || "Gagal mengambil data rapat");
             }
 
-            setMeetings(result.data || []);
+            setMeetings(resultMeetings.data || []);
+
+            if (resFollowUps.ok) {
+                setFollowUps(resultFollowUps.data || []);
+            }
+
+            if (resUsers.ok) {
+                const userList = resultUsers.data || resultUsers || [];
+                setTotalUsersCount(Array.isArray(userList) ? userList.length : 0);
+            }
         } catch (err) {
-            console.error("Fetch meetings error:", err);
+            console.error("Fetch dashboard data error:", err);
             setError(err.message);
         } finally {
             setLoading(false);
@@ -113,7 +131,7 @@ export default function DashboardAdmin() {
     };
 
     useEffect(() => {
-        fetchMeetings();
+        fetchDashboardData();
     }, []);
 
     // Helper Format Tanggal & Jam
@@ -148,10 +166,15 @@ export default function DashboardAdmin() {
     // Filter Rapat Terjadwal untuk Panel Kiri
     const scheduledMeetings = meetings.filter((m) => m.status === "Terjadwal");
 
-    // Hitung Angka Statistik berdasarkan Data API
+    // Hitung Angka Statistik Rapat
     const countSelesai = meetings.filter((m) => m.status === "Selesai").length;
     const countTerjadwal = meetings.filter((m) => m.status === "Terjadwal").length;
     const countBatal = meetings.filter((m) => m.status === "Batal").length;
+
+    // Hitung Angka Statistik Tindak Lanjut Berdasarkan Status
+    const countTLDone = followUps.filter((f) => f.status === "Selesai").length;
+    const countTLProcess = followUps.filter((f) => f.status === "Dikerjakan").length;
+    const countTLEvalOrPending = followUps.filter((f) => f.status === "Evaluasi" || f.status === "Belum Mulai").length;
 
     // Deteksi jenis layar
     const isMobile = windowWidth <= 768;
@@ -505,6 +528,15 @@ export default function DashboardAdmin() {
             paddingBottom: "0.25rem",
             margin: 0,
         },
+        statSectionTitle: {
+            fontSize: "clamp(0.8125rem, 1.5vw, 0.875rem)",
+            fontWeight: 700,
+            color: "#4b5563",
+            margin: "0.5rem 0 0.25rem 0",
+            textAlign: "left",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+        },
         rapatCard: {
             border: "1px solid #e5e7eb",
             borderRadius: "0.75rem",
@@ -541,17 +573,28 @@ export default function DashboardAdmin() {
             alignSelf: "flex-end",
             width: isSmallMobile ? "100%" : "auto",
         },
+        statGridTwoCol: {
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "0.75rem",
+        },
+        statGridThreeCol: {
+            display: "grid",
+            gridTemplateColumns: isSmallMobile ? "1fr" : "1fr 1fr 1fr",
+            gap: "0.75rem",
+        },
         statCard: {
             border: "1px solid #e5e7eb",
             borderRadius: "0.75rem",
-            padding: "1rem",
+            padding: "0.875rem 0.5rem",
             textAlign: "center",
             display: "flex",
             flexDirection: "column",
-            gap: "0.5rem",
+            gap: "0.375rem",
+            backgroundColor: "#ffffff",
         },
         statTitle: {
-            fontSize: "clamp(0.8125rem, 1.5vw, 0.875rem)",
+            fontSize: "clamp(0.7rem, 1.1vw, 0.75rem)",
             fontWeight: 600,
             color: "#374151",
             margin: 0,
@@ -560,13 +603,13 @@ export default function DashboardAdmin() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: "0.75rem",
+            gap: "0.375rem",
         },
         statIcon: {
-            fontSize: "1.5rem",
+            fontSize: "1.1rem",
         },
         statNumber: {
-            fontSize: "clamp(1.75rem, 3vw, 2rem)",
+            fontSize: "clamp(1.25rem, 2.2vw, 1.5rem)",
             fontWeight: 800,
             color: "#2D7A68",
         },
@@ -962,31 +1005,73 @@ export default function DashboardAdmin() {
                         )}
                     </div>
 
-                    {/* Kolom Kanan: Statistik */}
+                    {/* Kolom Kanan: Statistik Lengkap (Rapat, Peserta, & Tindak Lanjut) */}
                     <div style={styles.panelCard}>
-                        <h3 style={styles.panelTitle}>Statistik Tahun 2026</h3>
+                        <h3 style={styles.panelTitle}>Statistik Ringkasan</h3>
 
+                        {/* SUB STATISTIK: PESERTA */}
                         <div style={styles.statCard}>
-                            <p style={styles.statTitle}>Rapat Selesai</p>
+                            <p style={styles.statTitle}>Total Peserta Terdaftar</p>
                             <div style={styles.statValueBox}>
-                                <span style={styles.statIcon}>📋</span>
-                                <span style={styles.statNumber}>{loading ? "-" : countSelesai}</span>
+                                <span style={styles.statIcon}>👥</span>
+                                <span style={styles.statNumber}>{loading ? "-" : totalUsersCount}</span>
+                            </div>
+                        </div>
+
+                        {/* SUB STATISTIK: RAPAT */}
+                        <h4 style={styles.statSectionTitle}>Status Rapat</h4>
+                        <div style={styles.statGridThreeCol}>
+                            <div style={styles.statCard}>
+                                <p style={styles.statTitle}>Terjadwal</p>
+                                <div style={styles.statValueBox}>
+                                    <span style={styles.statIcon}>📅</span>
+                                    <span style={{ ...styles.statNumber, color: "#15803d" }}>{loading ? "-" : countTerjadwal}</span>
+                                </div>
+                            </div>
+
+                            <div style={styles.statCard}>
+                                <p style={styles.statTitle}>Selesai</p>
+                                <div style={styles.statValueBox}>
+                                    <span style={styles.statIcon}>📋</span>
+                                    <span style={{ ...styles.statNumber, color: "#1d4ed8" }}>{loading ? "-" : countSelesai}</span>
+                                </div>
+                            </div>
+
+                            {/* KARTU BATAL */}
+                            <div style={styles.statCard}>
+                                <p style={styles.statTitle}>Batal</p>
+                                <div style={styles.statValueBox}>
+                                    <span style={styles.statIcon}>❌</span>
+                                    <span style={{ ...styles.statNumber, color: "#dc2626" }}>{loading ? "-" : countBatal}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* SUB STATISTIK: TINDAK LANJUT */}
+                        <h4 style={styles.statSectionTitle}>Status Tindak Lanjut</h4>
+                        <div style={styles.statGridTwoCol}>
+                            <div style={styles.statCard}>
+                                <p style={styles.statTitle}>TL Selesai</p>
+                                <div style={styles.statValueBox}>
+                                    <span style={styles.statIcon}>✅</span>
+                                    <span style={{ ...styles.statNumber, color: "#059669" }}>{loading ? "-" : countTLDone}</span>
+                                </div>
+                            </div>
+
+                            <div style={styles.statCard}>
+                                <p style={styles.statTitle}>TL Dikerjakan</p>
+                                <div style={styles.statValueBox}>
+                                    <span style={styles.statIcon}>⏳</span>
+                                    <span style={{ ...styles.statNumber, color: "#d97706" }}>{loading ? "-" : countTLProcess}</span>
+                                </div>
                             </div>
                         </div>
 
                         <div style={styles.statCard}>
-                            <p style={styles.statTitle}>Rapat Terjadwal</p>
+                            <p style={styles.statTitle}>TL Belum / Evaluasi</p>
                             <div style={styles.statValueBox}>
-                                <span style={styles.statIcon}>📅</span>
-                                <span style={styles.statNumber}>{loading ? "-" : countTerjadwal}</span>
-                            </div>
-                        </div>
-
-                        <div style={styles.statCard}>
-                            <p style={styles.statTitle}>Rapat Dibatalkan</p>
-                            <div style={styles.statValueBox}>
-                                <span style={styles.statIcon}>📑</span>
-                                <span style={styles.statNumber}>{loading ? "-" : countBatal}</span>
+                                <span style={styles.statIcon}>📌</span>
+                                <span style={{ ...styles.statNumber, color: "#dc2626" }}>{loading ? "-" : countTLEvalOrPending}</span>
                             </div>
                         </div>
                     </div>

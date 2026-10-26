@@ -297,9 +297,9 @@ export default function UserTindakLanjut() {
       fontSize: "clamp(0.65rem, 1.5vw, 0.75rem)",
       fontWeight: 300,
       margin: 0,
-      opacity: 0.8, // Menurunkan opacity agar terlihat lebih soft/tipis
-      fontFamily: "'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif", // Font dengan variasi Light yang bagus
-      WebkitFontSmoothing: "antialiased", // Membuat rendering teks lebih halus di Mac/iOS
+      opacity: 0.8,
+      fontFamily: "'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif",
+      WebkitFontSmoothing: "antialiased",
       MozOsxFontSmoothing: "grayscale",
     },
     brandTitle: {
@@ -751,6 +751,18 @@ export default function UserTindakLanjut() {
           </button>
 
           <button
+            onClick={() => navigate("/user/data-rapat")}
+            style={
+              location.pathname === "/user/data-rapat" ||
+              location.pathname.includes("data-rapat")
+                ? styles.navLinkActive
+                : styles.navLink
+            }
+          >
+            Data Rapat
+          </button>
+
+          <button
             onClick={() => navigate("/user/tindak-lanjut")}
             style={
               location.pathname === "/user/tindak-lanjut"
@@ -850,7 +862,7 @@ export default function UserTindakLanjut() {
                         onClick={(e) => {
                           e.stopPropagation();
                           if (item?.meeting_id) {
-                            navigate(`/user/detail-data-rapat-user/${item.meeting_id}`, {
+                            navigate(`/user/detail-data-rapat/${item.meeting_id}`, {
                               state: { meetingData: item },
                             });
                           } else {

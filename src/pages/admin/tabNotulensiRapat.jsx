@@ -32,6 +32,14 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
     const [invitationPreviews, setInvitationPreviews] = useState([]);
     const [documentationPreviews, setDocumentationPreviews] = useState([]);
 
+    // State Nama Notulis (Lokal / LocalStorage)
+    const [notulisName, setNotulisName] = useState(() => {
+        const saved = localStorage.getItem(`notulis_${meetingId}`);
+        return saved || "";
+    });
+    const [showNotulisModal, setShowNotulisModal] = useState(false);
+    const [tempNotulisName, setTempNotulisName] = useState("");
+
     // State Modal Form & Modal Alert
     const [showFormModal, setShowFormModal] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -116,6 +124,19 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Handler Modal Input Nama Notulis
+    const handleOpenNotulisModal = () => {
+        setTempNotulisName(notulisName);
+        setShowNotulisModal(true);
+    };
+
+    const handleSaveNotulisName = (e) => {
+        e.preventDefault();
+        setNotulisName(tempNotulisName);
+        localStorage.setItem(`notulis_${meetingId}`, tempNotulisName);
+        setShowNotulisModal(false);
     };
 
     // Helper untuk memformat URL Gambar dari Backend
@@ -341,6 +362,21 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
             // Section 4: Dokumentasi
             const documentationList = parseImages(minuteData.documentation_img);
             await renderImageSection("Dokumentasi", documentationList);
+
+            // Section 5: Penutup Nama Notulis di Bagian Bawah PDF (Tanpa TTD)
+            checkAddPage(20);
+            currentY += 5;
+            const displayName = notulisName || minuteData?.User?.name || minuteData?.user?.name || "....................................";
+            const todayStr = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+            const signatureX = 130;
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9.5);
+            doc.text(`Bukittinggi, ${todayStr}`, signatureX, currentY);
+            currentY += 5;
+
+            doc.setFont("helvetica", "normal");
+            doc.text(`Notulis: ${displayName}`, signatureX, currentY);
 
             // 3. PREVIEW DENGAN JUDUL TAB & NAMA DOKUMEN RAPI
             const formattedDateForName = activeMeeting.date
@@ -595,6 +631,21 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
             width: isMobile ? "100%" : "auto",
             justifyContent: isMobile ? "flex-end" : "flex-start",
         },
+        btnNotulis: {
+            backgroundColor: "#ffffff",
+            color: "#374151",
+            border: "1px solid #d1d5db",
+            padding: isSmallMobile ? "7px 10px" : "9px 14px",
+            borderRadius: "8px",
+            fontSize: isSmallMobile ? "12px" : "13px",
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
+            flex: isSmallMobile ? "1" : "none",
+        },
         btnExportPDF: {
             backgroundColor: "#2D7A68",
             color: "#ffffff",
@@ -697,7 +748,7 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
             fontSize: isSmallMobile ? "12px" : "13px",
             fontFamily: "inherit",
             boxSizing: "border-box",
-            outlineColor: "#2D7A68",
+            outline: "none"
         },
         modalOverlay: {
             position: "fixed",
@@ -710,6 +761,19 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
             justifyContent: "center",
             alignItems: "center",
             zIndex: 9999,
+        },
+        modalCardNotulis: {
+            backgroundColor: "#ffffff",
+            padding: isSmallMobile ? "20px 18px" : "24px 28px",
+            borderRadius: "16px",
+            boxShadow: "0px 10px 25px rgba(0, 0, 0, 0.15)",
+            textAlign: "center",
+            maxWidth: "400px",
+            width: "90%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "12px",
         },
         modalCard: {
             backgroundColor: "#ffffff",
@@ -785,6 +849,14 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
             display: "flex",
             justifyContent: "flex-end",
             gap: "12px",
+        },
+        modalButtonGroup: {
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: "12px",
+            width: "100%",
+            marginTop: "8px",
         },
         btnBatal: {
             padding: isSmallMobile ? "7px 16px" : "8px 20px",
@@ -876,6 +948,15 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
                     Status Notulensi: {minuteData ? "Sudah Terisi" : "Belum Ada Data"}
                 </span>
                 <div style={styles.actionGroup}>
+                    {/* Tombol Input/Edit Nama Notulis */}
+                    <button
+                        onClick={handleOpenNotulisModal}
+                        style={styles.btnNotulis}
+                        title="Atur Nama Notulis"
+                    >
+                        ⚙️ Notulis{notulisName ? `: ${notulisName}` : ""}
+                    </button>
+
                     {/* Tombol Export PDF */}
                     {minuteData && (
                         <button style={styles.btnExportPDF} onClick={handleExportPDF}>
@@ -974,6 +1055,38 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
                 </div>
             )}
 
+            {/* MODAL INPUT NAMA NOTULIS LOKAL (TEXT INPUT) */}
+            {showNotulisModal && (
+                <div style={styles.modalOverlay}>
+                    <div style={styles.modalCardNotulis}>
+                        <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "700", color: "#2D7A68" }}>
+                            Pengaturan Nama Notulis
+                        </h3>
+                        <form onSubmit={handleSaveNotulisName} style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px", marginTop: "10px" }}>
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "6px", width: "100%" }}>
+                                <label style={{ fontSize: "12px", fontWeight: "600", color: "#374151" }}>Nama Notulis Rapat</label>
+                                <input
+                                    type="text"
+                                    style={styles.modalInputSoft}
+                                    value={tempNotulisName}
+                                    onChange={(e) => setTempNotulisName(e.target.value)}
+                                    placeholder="Masukkan nama notulis..."
+                                    autoFocus
+                                />
+                            </div>
+                            <div style={styles.modalButtonGroup}>
+                                <button type="button" onClick={() => setShowNotulisModal(false)} style={styles.btnBatal}>
+                                    Batal
+                                </button>
+                                <button type="submit" style={styles.btnSimpan}>
+                                    Simpan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* Modal Form Tambah/Edit Notulensi */}
             {showFormModal && (
                 <div style={styles.modalOverlay}>
@@ -996,7 +1109,7 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
                                 <label style={styles.label}>Notulensi Rapat</label>
                                 <textarea
                                     style={{ ...styles.textarea, ...styles.modalInputSoft }}
-                                    placeholder="Masukkan deskripsi atau hasil pembahasan rapat..."
+                                    placeholder="Masukkan deskripsi atau hasil pembahasan rapat"
                                     value={discussion}
                                     onChange={(e) => setDiscussion(e.target.value)}
                                 />
@@ -1007,7 +1120,7 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
                                 <label style={styles.label}>Keputusan Rapat</label>
                                 <textarea
                                     style={{ ...styles.textarea, ...styles.modalInputSoft }}
-                                    placeholder="Masukkan keputusan yang dihasilkan..."
+                                    placeholder="Masukkan keputusan yang dihasilkan"
                                     value={decisions}
                                     onChange={(e) => setDecisions(e.target.value)}
                                 />

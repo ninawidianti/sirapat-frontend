@@ -153,6 +153,7 @@ const AlarmTimePicker = ({ value, onChange, label }) => {
 export default function JadwalRapat() {
   const userStored = JSON.parse(localStorage.getItem("user") || "{}");
   const adminName = userStored.name || "Admin";
+  const userRole = userStored.role ? String(userStored.role).toLowerCase() : "";
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -1385,13 +1386,28 @@ export default function JadwalRapat() {
             onClick={() => navigate("/user/jadwal-rapat")}
             style={
               location.pathname === "/user/jadwalRapat" ||
-                location.pathname === "/user/jadwal-rapat"
+              location.pathname === "/user/jadwal-rapat"
                 ? styles.navLinkActive
                 : styles.navLink
             }
           >
             Jadwal Rapat
           </button>
+
+          {/* Tombol Data Rapat khusus Role Pimpinan */}
+          {userRole === "pimpinan" && (
+            <button
+              onClick={() => navigate("/user/data-rapat")}
+              style={
+                location.pathname === "/user/data-rapat" ||
+                location.pathname.includes("data-rapat")
+                  ? styles.navLinkActive
+                  : styles.navLink
+              }
+            >
+              Data Rapat
+            </button>
+          )}
 
           <button
             onClick={() => navigate("/user/tindak-lanjut")}
