@@ -17,7 +17,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Halaman Login */}
-        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
 
         {/* ================= HALAMAN KHUSUS ADMIN ================= */}
         <Route
