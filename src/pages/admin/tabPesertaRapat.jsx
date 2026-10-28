@@ -95,20 +95,20 @@ export default function TabPesertaRapat({ meetingId, meetingData }) {
             };
 
             if (!meetingData) {
-                const resMeeting = await fetch(`http://localhost:5000/api/meetings/${meetingId}`, { headers });
+                const resMeeting = await fetch(`/api/meetings/${meetingId}`, { headers });
                 const dataMeeting = await resMeeting.json();
                 if (resMeeting.ok && dataMeeting.data) {
                     setLocalMeetingData(dataMeeting.data);
                 }
             }
 
-            const resUsers = await fetch("http://localhost:5000/api/users", { headers });
+            const resUsers = await fetch("/api/users", { headers });
             const dataUsers = await resUsers.json();
 
-            const resCommittees = await fetch("http://localhost:5000/api/committees", { headers });
+            const resCommittees = await fetch("/api/committees", { headers });
             const dataCommittees = await resCommittees.json();
 
-            const resParticipants = await fetch(`http://localhost:5000/api/meetings/${meetingId}/participants`, { headers });
+            const resParticipants = await fetch(`/api/meetings/${meetingId}/participants`, { headers });
             const dataParticipants = await resParticipants.json();
 
             if (resUsers.ok) {
@@ -159,7 +159,7 @@ const pimpinanUsers = allUsers.filter((u) => {
             fullUrl = imageUrl;
         } else if (typeof imageUrl === "string" && imageUrl.includes("uploads")) {
             const cleanPath = imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`;
-            fullUrl = `http://localhost:5000${cleanPath}`;
+            fullUrl = `${cleanPath}`;
         } else {
             fullUrl = window.location.origin + (String(imageUrl).startsWith("/") ? imageUrl : `/${imageUrl}`);
         }
@@ -592,7 +592,7 @@ const pimpinanUsers = allUsers.filter((u) => {
 
     const handleSaveParticipants = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/meetings/${meetingId}/participants`, {
+            const response = await fetch(`/api/meetings/${meetingId}/participants`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -622,7 +622,7 @@ const pimpinanUsers = allUsers.filter((u) => {
         }
 
         try {
-            const response = await fetch(`http://localhost:5000/api/meetings/${meetingId}/participants/${userId}`, {
+            const response = await fetch(`/api/meetings/${meetingId}/participants/${userId}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });

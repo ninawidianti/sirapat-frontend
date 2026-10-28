@@ -259,8 +259,8 @@ export default function DataRapat() {
       };
 
       const [resMeetings, resUsers] = await Promise.all([
-        fetch("http://localhost:5000/api/meetings", { headers }),
-        fetch("http://localhost:5000/api/users", { headers }),
+        fetch("/api/meetings", { headers }),
+        fetch("/api/users", { headers }),
       ]);
 
       const resultMeetings = await resMeetings.json();
@@ -306,7 +306,7 @@ export default function DataRapat() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:5000/api/meetings/${selectedMeetingToSubmit.meeting_id}/request-approval`,
+        `/api/meetings/${selectedMeetingToSubmit.meeting_id}/request-approval`,
         {
           method: "POST",
           headers: {
@@ -348,7 +348,7 @@ export default function DataRapat() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:5000/api/meetings/${selectedMeetingToVerify.meeting_id}/status`,
+        `/api/meetings/${selectedMeetingToVerify.meeting_id}/status`,
         {
           method: "PATCH",
           headers: {
@@ -463,7 +463,7 @@ export default function DataRapat() {
       fullUrl = imageUrl;
     } else if (typeof imageUrl === "string" && imageUrl.includes("uploads")) {
       const cleanPath = imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`;
-      fullUrl = `http://localhost:5000${cleanPath}`;
+      fullUrl = `${cleanPath}`;
     } else {
       fullUrl =
         window.location.origin +
@@ -498,7 +498,7 @@ export default function DataRapat() {
     ) {
       return url;
     }
-    return `http://localhost:5000/${url.replace(/\\/g, "/")}`;
+    return `/${url.replace(/\\/g, "/")}`;
   };
 
   const parseImages = (imageData) => {
@@ -1308,11 +1308,11 @@ export default function DataRapat() {
 
       const [resNotulensi, resParticipants] = await Promise.all([
         fetch(
-          `http://localhost:5000/api/minutes/meeting/${item.meeting_id}`,
+          `/api/minutes/meeting/${item.meeting_id}`,
           { headers }
         ),
         fetch(
-          `http://localhost:5000/api/meetings/${item.meeting_id}/participants`,
+          `/api/meetings/${item.meeting_id}/participants`,
           { headers }
         ),
       ]);
@@ -1395,7 +1395,7 @@ export default function DataRapat() {
   const executeLogout = async () => {
     try {
       const token = localStorage.getItem("token");
-      await fetch("http://localhost:5000/api/auth/logout", {
+      await fetch("/api/auth/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

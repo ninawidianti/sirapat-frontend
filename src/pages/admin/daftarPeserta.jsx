@@ -103,7 +103,7 @@ export default function DaftarPeserta() {
             setLoadingPeserta(true);
             const token = localStorage.getItem("token");
 
-            const response = await fetch("http://localhost:5000/api/users", {
+            const response = await fetch("/api/users", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -130,7 +130,7 @@ export default function DaftarPeserta() {
             setLoadingCommittee(true);
             const token = localStorage.getItem("token");
 
-            const response = await fetch("http://localhost:5000/api/committees", {
+            const response = await fetch("/api/committees", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -374,8 +374,8 @@ export default function DaftarPeserta() {
             setSubmitting(true);
             const token = localStorage.getItem("token");
             const url = selectedUserId
-                ? `http://localhost:5000/api/users/${selectedUserId}`
-                : "http://localhost:5000/api/users";
+                ? `/api/users/${selectedUserId}`
+                : "/api/users";
 
             const formData = new FormData();
             formData.append("name", formUserData.name);
@@ -454,8 +454,8 @@ export default function DaftarPeserta() {
             setSubmitting(true);
             const token = localStorage.getItem("token");
             const url = selectedCommitteeId
-                ? `http://localhost:5000/api/committees/${selectedCommitteeId}`
-                : "http://localhost:5000/api/committees";
+                ? `/api/committees/${selectedCommitteeId}`
+                : "/api/committees";
 
             const response = await fetch(url, {
                 method: selectedCommitteeId ? "PUT" : "POST",
@@ -494,7 +494,7 @@ export default function DaftarPeserta() {
             const token = localStorage.getItem("token");
             const endpoint = itemToDelete.type === "user" ? `users/${itemToDelete.id}` : `committees/${itemToDelete.id}`;
 
-            const response = await fetch(`http://localhost:5000/api/${endpoint}`, {
+            const response = await fetch(`/api/${endpoint}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
@@ -527,7 +527,7 @@ export default function DaftarPeserta() {
     const executeLogout = async () => {
         try {
             const token = localStorage.getItem("token");
-            await fetch("http://localhost:5000/api/auth/logout", {
+            await fetch("/api/auth/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -1304,7 +1304,7 @@ export default function DaftarPeserta() {
                                                 <td style={styles.td}>
                                                     {item.signature_url ? (
                                                         <img
-                                                            src={`http://localhost:5000${item.signature_url}`}
+                                                            src={`${item.signature_url}`}
                                                             alt="TTD"
                                                             style={{ width: "40px", height: "25px", objectFit: "contain" }}
                                                         />

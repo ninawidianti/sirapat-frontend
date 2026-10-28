@@ -100,7 +100,7 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
 
             // Fetch detail rapat jika belum ada dari parent
             if (!meetingData) {
-                const resMeeting = await fetch(`http://localhost:5000/api/meetings/${meetingId}`, { headers });
+                const resMeeting = await fetch(`/api/meetings/${meetingId}`, { headers });
                 const dataMeeting = await resMeeting.json();
                 if (resMeeting.ok && dataMeeting.data) {
                     setLocalMeetingData(dataMeeting.data);
@@ -108,7 +108,7 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
             }
 
             // Fetch Notulensi
-            const response = await fetch(`http://localhost:5000/api/minutes/meeting/${meetingId}`, { headers });
+            const response = await fetch(`/api/minutes/meeting/${meetingId}`, { headers });
             const result = await response.json();
 
             if (response.ok && result.data) {
@@ -145,7 +145,7 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
         if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
             return url;
         }
-        return `http://localhost:5000/${url.replace(/\\/g, "/")}`;
+        return `/${url.replace(/\\/g, "/")}`;
     };
 
     // Helper Parsing data gambar dari Backend
@@ -574,8 +574,8 @@ export default function TabNotulensiRapat({ meetingId, meetingData }) {
             });
 
             const url = isEditMode
-                ? `http://localhost:5000/api/minutes/${minuteData.minutes_id}`
-                : "http://localhost:5000/api/minutes";
+                ? `/api/minutes/${minuteData.minutes_id}`
+                : "/api/minutes";
 
             const method = isEditMode ? "PUT" : "POST";
 

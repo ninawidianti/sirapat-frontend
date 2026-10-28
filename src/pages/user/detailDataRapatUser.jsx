@@ -68,7 +68,7 @@ export default function DetailNotulensiRapat() {
     if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
       return url;
     }
-    return `http://localhost:5000/${url.replace(/\\/g, "/")}`;
+    return `/${url.replace(/\\/g, "/")}`;
   };
 
   // Helper Parsing Gambar
@@ -232,7 +232,7 @@ export default function DetailNotulensiRapat() {
       setLoading(true);
 
       // Fetch Detail Rapat
-      const resMeeting = await fetch(`http://localhost:5000/api/meetings/${meetingId}`, {
+      const resMeeting = await fetch(`/api/meetings/${meetingId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const resultMeeting = await resMeeting.json();
@@ -241,7 +241,7 @@ export default function DetailNotulensiRapat() {
       }
 
       // Fetch Data Notulensi
-      const resMinute = await fetch(`http://localhost:5000/api/minutes/meeting/${meetingId}`, {
+      const resMinute = await fetch(`/api/minutes/meeting/${meetingId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const resultMinute = await resMinute.json();
@@ -503,7 +503,7 @@ export default function DetailNotulensiRapat() {
   // Logout Function
   const executeLogout = async () => {
     try {
-      await fetch("http://localhost:5000/api/auth/logout", {
+      await fetch("/api/auth/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

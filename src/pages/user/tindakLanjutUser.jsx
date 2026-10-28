@@ -52,7 +52,7 @@ export default function UserTindakLanjut() {
   const fetchAllFollowUps = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/follow-ups", {
+      const res = await fetch("/api/follow-ups", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -135,7 +135,7 @@ export default function UserTindakLanjut() {
         description: description,
       };
 
-      const res = await fetch("http://localhost:5000/api/follow-up-updates", {
+      const res = await fetch("/api/follow-up-updates", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -167,7 +167,7 @@ export default function UserTindakLanjut() {
   // Logout Function
   const executeLogout = async () => {
     try {
-      await fetch("http://localhost:5000/api/auth/logout", {
+      await fetch("/api/auth/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

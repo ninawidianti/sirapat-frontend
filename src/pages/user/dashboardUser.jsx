@@ -109,7 +109,7 @@ export default function DashboardUser() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch("http://localhost:5000/api/meetings", {
+      const response = await fetch("/api/meetings", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -138,7 +138,7 @@ export default function DashboardUser() {
       setLoadingCommittees(true);
       setErrorCommittees(null);
 
-      const response = await fetch("http://localhost:5000/api/committees", {
+      const response = await fetch("/api/committees", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -174,7 +174,7 @@ export default function DashboardUser() {
   const fetchFollowUps = async () => {
     try {
       setLoadingTindakLanjut(true);
-      const res = await fetch("http://localhost:5000/api/follow-ups", {
+      const res = await fetch("/api/follow-ups", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -254,7 +254,7 @@ export default function DashboardUser() {
       const statusToSubmit = selectedStatus || "Belum Konfirmasi";
 
       const response = await fetch(
-        `http://localhost:5000/api/meetings/${selectedMeetingForConfirm.meeting_id}/confirm-attendance`,
+        `/api/meetings/${selectedMeetingForConfirm.meeting_id}/confirm-attendance`,
         {
           method: "POST",
           headers: {
@@ -293,7 +293,7 @@ export default function DashboardUser() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/meetings/${meetingItem.meeting_id}/participants`,
+        `/api/meetings/${meetingItem.meeting_id}/participants`,
         {
           method: "GET",
           headers: {
@@ -370,7 +370,7 @@ export default function DashboardUser() {
 
   const executeLogout = async () => {
     try {
-      await fetch("http://localhost:5000/api/auth/logout", {
+      await fetch("/api/auth/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

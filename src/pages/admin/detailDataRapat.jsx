@@ -111,7 +111,7 @@ export default function DetailDataRapat() {
                 try {
                     setLoading(true);
                     const token = localStorage.getItem("token");
-                    const response = await fetch(`http://localhost:5000/api/meetings/${meetingId}`, {
+                    const response = await fetch(`/api/meetings/${meetingId}`, {
                         headers: {
                             "Content-Type": "application/json",
                             Authorization: `Bearer ${token}`,
@@ -158,7 +158,7 @@ export default function DetailDataRapat() {
     const executeLogout = async () => {
         try {
             const token = localStorage.getItem("token");
-            await fetch("http://localhost:5000/api/auth/logout", {
+            await fetch("/api/auth/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

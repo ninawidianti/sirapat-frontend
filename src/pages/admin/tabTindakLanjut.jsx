@@ -57,7 +57,7 @@ export default function TabTindakLanjutRapat({ meetingId }) {
     const fetchFollowUps = async () => {
         try {
             setLoading(true);
-            const res = await fetch(`http://localhost:5000/api/follow-ups/meeting/${meetingId}`, {
+            const res = await fetch(`/api/follow-ups/meeting/${meetingId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const result = await res.json();
@@ -73,7 +73,7 @@ export default function TabTindakLanjutRapat({ meetingId }) {
     // 2. Fetch Users untuk Dropdown PIC
     const fetchUsers = async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/users", {
+            const res = await fetch("/api/users", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const result = await res.json();
@@ -144,8 +144,8 @@ export default function TabTindakLanjutRapat({ meetingId }) {
             };
 
             const url = selectedId
-                ? `http://localhost:5000/api/follow-ups/${selectedId}`
-                : "http://localhost:5000/api/follow-ups";
+                ? `/api/follow-ups/${selectedId}`
+                : "/api/follow-ups";
             const method = selectedId ? "PUT" : "POST";
 
             const res = await fetch(url, {
@@ -189,7 +189,7 @@ export default function TabTindakLanjutRapat({ meetingId }) {
         setDeleteError("");
 
         try {
-            const response = await fetch(`http://localhost:5000/api/follow-ups/${itemToDelete.follow_up_id}`, {
+            const response = await fetch(`/api/follow-ups/${itemToDelete.follow_up_id}`, {
                 method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${token}`

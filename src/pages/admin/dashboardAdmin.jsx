@@ -99,9 +99,9 @@ export default function DashboardAdmin() {
             };
 
             const [resMeetings, resFollowUps, resUsers] = await Promise.all([
-                fetch("http://localhost:5000/api/meetings", { headers }),
-                fetch("http://localhost:5000/api/follow-ups", { headers }),
-                fetch("http://localhost:5000/api/users", { headers }),
+                fetch("/api/meetings", { headers }),
+                fetch("/api/follow-ups", { headers }),
+                fetch("/api/users", { headers }),
             ]);
 
             const resultMeetings = await resMeetings.json();
@@ -185,7 +185,7 @@ export default function DashboardAdmin() {
         try {
             const token = localStorage.getItem("token");
 
-            await fetch("http://localhost:5000/api/auth/logout", {
+            await fetch("/api/auth/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -210,7 +210,7 @@ export default function DashboardAdmin() {
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(
-                `http://localhost:5000/api/meetings/${meetingItem.meeting_id}/participants`,
+                `/api/meetings/${meetingItem.meeting_id}/participants`,
                 {
                     method: "GET",
                     headers: {

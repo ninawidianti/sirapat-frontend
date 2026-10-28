@@ -291,7 +291,7 @@ export default function JadwalRapat() {
 
             const token = localStorage.getItem("token");
 
-            const response = await fetch("http://localhost:5000/api/meetings", {
+            const response = await fetch("/api/meetings", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -334,7 +334,7 @@ export default function JadwalRapat() {
         try {
             const token = localStorage.getItem("token");
 
-            const response = await fetch("http://localhost:5000/api/meetings", {
+            const response = await fetch("/api/meetings", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -402,7 +402,7 @@ export default function JadwalRapat() {
 
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:5000/api/meetings/${selectedMeetingId}`, {
+            const response = await fetch(`/api/meetings/${selectedMeetingId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -442,7 +442,7 @@ export default function JadwalRapat() {
 
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:5000/api/meetings/${meetingToDelete.meeting_id}`, {
+            const response = await fetch(`/api/meetings/${meetingToDelete.meeting_id}`, {
                 method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -559,7 +559,7 @@ export default function JadwalRapat() {
     const executeLogout = async () => {
         try {
             const token = localStorage.getItem("token");
-            await fetch("http://localhost:5000/api/auth/logout", {
+            await fetch("/api/auth/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

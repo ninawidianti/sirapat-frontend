@@ -98,7 +98,7 @@ export default function TindakLanjutAdmin() {
     const fetchAllFollowUps = async () => {
         try {
             setLoading(true);
-            const res = await fetch("http://localhost:5000/api/follow-ups", {
+            const res = await fetch("/api/follow-ups", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -152,7 +152,7 @@ export default function TindakLanjutAdmin() {
     const fetchFollowUpUpdates = async (followUpId) => {
         try {
             setLoadingUpdates(true);
-            const res = await fetch(`http://localhost:5000/api/follow-up-updates/${followUpId}`, {
+            const res = await fetch(`/api/follow-up-updates/${followUpId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const result = await res.json();
@@ -177,7 +177,7 @@ export default function TindakLanjutAdmin() {
 
     const fetchUsers = async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/users", {
+            const res = await fetch("/api/users", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const result = await res.json();
@@ -189,7 +189,7 @@ export default function TindakLanjutAdmin() {
 
     const fetchMeetings = async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/meetings", {
+            const res = await fetch("/api/meetings", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const result = await res.json();
@@ -268,8 +268,8 @@ export default function TindakLanjutAdmin() {
             };
 
             const url = selectedId
-                ? `http://localhost:5000/api/follow-ups/${selectedId}`
-                : "http://localhost:5000/api/follow-ups";
+                ? `/api/follow-ups/${selectedId}`
+                : "/api/follow-ups";
             const method = selectedId ? "PUT" : "POST";
 
             const res = await fetch(url, {
@@ -311,7 +311,7 @@ export default function TindakLanjutAdmin() {
         setDeleteError("");
 
         try {
-            const response = await fetch(`http://localhost:5000/api/follow-ups/${itemToDelete.follow_up_id}`, {
+            const response = await fetch(`/api/follow-ups/${itemToDelete.follow_up_id}`, {
                 method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -346,7 +346,7 @@ export default function TindakLanjutAdmin() {
         setActiveMeetingForNotulensi(item.meeting || item);
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:5000/api/minutes/meeting/${mId}`, {
+            const response = await fetch(`/api/minutes/meeting/${mId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const result = await response.json();
@@ -392,7 +392,7 @@ export default function TindakLanjutAdmin() {
         if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
             return url;
         }
-        return `http://localhost:5000/${url.replace(/\\/g, "/")}`;
+        return `/${url.replace(/\\/g, "/")}`;
     };
 
     const getBase64ImageFromUrl = (imageUrl) => {
@@ -432,8 +432,8 @@ export default function TindakLanjutAdmin() {
 
             const isEdit = !!minuteData;
             const url = isEdit
-                ? `http://localhost:5000/api/minutes/${minuteData.minutes_id}`
-                : "http://localhost:5000/api/minutes";
+                ? `/api/minutes/${minuteData.minutes_id}`
+                : "/api/minutes";
 
             const response = await fetch(url, {
                 method: isEdit ? "PUT" : "POST",
@@ -676,7 +676,7 @@ export default function TindakLanjutAdmin() {
 
     const executeLogout = async () => {
         try {
-            await fetch("http://localhost:5000/api/auth/logout", {
+            await fetch("/api/auth/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
